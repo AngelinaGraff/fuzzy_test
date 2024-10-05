@@ -1,0 +1,212 @@
+nelmio_api_doc:
+    documentation:
+        info:
+            title: 'API для тестовой системы'
+            description: 'Эта документация описывает API для викторины, предоставляя информацию по запросам и ответам, используемым для работы с вопросами, ответами и результатами тестов.'
+            version: '1.0.0'
+        paths:
+            /api/quiz:
+                get:
+                    summary: 'Получить список вопросов'
+                    description: 'Возвращает список всех вопросов с возможными вариантами ответов.'
+                    responses:
+                        '200':
+                            description: 'Успешный запрос. Возвращает массив объектов с вопросами и вариантами ответов.'
+                            content:
+                                application/json:
+                                    schema:
+                                        type: array
+                                        items:
+                                            type: object
+                                            properties:
+                                                id:
+                                                    type: integer
+                                                    example: 1
+                                                questionText:
+                                                    type: string
+                                                    example: '2 + 2 = ?'
+                                                answers:
+                                                    type: array
+                                                    items:
+                                                        type: object
+                                                        properties:
+                                                            id:
+                                                                type: integer
+                                                                example: 12
+                                                            answerText:
+                                                                type: string
+                                                                example: '2+1'
+                        '400':
+                            description: 'Ошибка. Вопросы не найдены.'
+                            content:
+                                application/json:
+                                    schema:
+                                        type: object
+                                        properties:
+                                            error:
+                                                type: string
+                                                example: 'Вопросы не найдены'
+                        '500':
+                            description: 'Внутренняя ошибка сервера. Возвращает описание ошибки.'
+                            content:
+                                application/json:
+                                    schema:
+                                        type: object
+                                        properties:
+                                            error:
+                                                type: string
+                                                example: 'Внутренняя ошибка сервера'
+
+            /api/quiz/submit:
+                post:
+                    summary: 'Отправить ответы на тест'
+                    description: 'Отправляет ответы пользователя на викторину и возвращает результат: правильные и неправильные вопросы.'
+                    requestBody:
+                        description: 'Ответы на вопросы викторины, где ключами являются идентификаторы вопросов, а значениями массивы ID выбранных ответов.'
+                        required: true
+                        content:
+                            application/json:
+                                schema:
+                                    type: object
+                                    properties:
+                                        answers:
+                                            type: object
+                                            description: 'Объект, где ключи — это ID вопросов, а значения — массивы ID выбранных ответов.'
+                                            example:
+                                                "1": [11, 12]
+                                                "2": [15]
+                                            additionalProperties: false
+                    responses:
+                        '200':
+                            description: 'Успешный запрос. Возвращает массив с правильными и неправильными ответами.'
+                            content:
+                                application/json:
+                                    schema:
+                                        type: object
+                                        properties:
+                                            correctAnswers:
+                                                type: array
+                                                items:
+                                                    type: integer
+                                                    example: 1
+                                            incorrectAnswers:
+                                                type: array
+                                                items:
+                                                    type: integer
+                                                    example: 2
+                        '400':
+                            description: 'Некорректные данные в запросе. Возвращает описание ошибки.'
+                            content:
+                                application/json:
+                                    schema:
+                                        type: object
+                                        properties:
+                                            error:
+                                                type: string
+                                                example: 'Некорректные данные'
+                        '500':
+                            description: 'Внутренняя ошибка сервера. Возвращает описание ошибки.'
+                            content:
+                                application/json:
+                                    schema:
+                                        type: object
+                                        properties:
+                                            error:
+                                                type: string
+                                                example: 'Внутренняя ошибка сервера'
+
+            /api/quiz/results:
+                get:
+                    summary: 'Получить результаты теста'
+                    description: 'Возвращает список вопросов, разделённый на правильные и неправильные, на основе переданных идентификаторов.'
+                    parameters:
+                        - in: query
+                          name: correct
+                          schema:
+                            type: string
+                          description: 'Список идентификаторов правильных вопросов через запятую'
+                          example: '1,2,3'
+                        - in: query
+                          name: incorrect
+                          schema:
+                            type: string
+                          description: 'Список идентификаторов неправильных вопросов через запятую'
+                          example: '4,5'
+                    responses:
+                        '200':
+                            description: 'Успешный запрос. Возвращает правильные и неправильные вопросы с их ответами.'
+                            content:
+                                application/json:
+                                    schema:
+                                        type: object
+                                        properties:
+                                            correctQuestions:
+                                                type: array
+                                                items:
+                                                    type: object
+                                                    properties:
+                                                        id:
+                                                            type: integer
+                                                            example: 1
+                                                        questionText:
+                                                            type: string
+                                                            example: '2 + 2 = ?'
+                                                        answers:
+                                                            type: array
+                                                            items:
+                                                                type: object
+                                                                properties:
+                                                                    id:
+                                                                        type: integer
+                                                                        example: 12
+                                                                    answerText:
+                                                                        type: string
+                                                                        example: '2+1'
+                                            incorrectQuestions:
+                                                type: array
+                                                items:
+                                                    type: object
+                                                    properties:
+                                                        id:
+                                                            type: integer
+                                                            example: 2
+                                                        questionText:
+                                                            type: string
+                                                            example: '3 + 3 = ?'
+                                                        answers:
+                                                            type: array
+                                                            items:
+                                                                type: object
+                                                                properties:
+                                                                    id:
+                                                                        type: integer
+                                                                        example: 12
+                                                                    answerText:
+                                                                        type: string
+                                                                        example: '5+1'
+                        '400':
+                            description: 'Некорректные параметры запроса или вопросы не найдены.'
+                            content:
+                                application/json:
+                                    schema:
+                                        type: object
+                                        properties:
+                                            error:
+                                                type: string
+                                                example: 'Некорректные параметры запроса'
+                                            error_2:
+                                                type: string
+                                                example: 'Вопросы не найдены'
+                        '500':
+                            description: 'Внутренняя ошибка сервера. Возвращает описание ошибки.'
+                            content:
+                                application/json:
+                                    schema:
+                                        type: object
+                                        properties:
+                                            error:
+                                                type: string
+                                                example: 'Внутренняя ошибка сервера'
+    areas:
+        path_patterns:
+            - ^/api(?!/doc$)

@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: symfony_app
+    ports:
+      - "8080:8000"
+    environment:
+      SYMFONY_ENV: dev
+      APP_ENV: dev
+      DATABASE_URL: "postgres://postgres:test1234@fuzzy_test_bd:5432/fuzzy_test_bd"
+    volumes:
+      - .:/var/www/html
+    depends_on:
+      - database
+    networks:
+      - quiz_network
+
+  database:
+    image: postgres:9.6
+    container_name: fuzzy_test_bd
+    environment:
+      POSTGRES_DB: fuzzy_test_bd
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: test1234
+    ports:
+      - "5432:5432"
+    networks:
+      - quiz_network
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+networks:
+  quiz_network:
+    driver: bridge
+
+volumes:
+  pgdata:
+    driver: local
