@@ -17,4 +17,7 @@ RUN composer install --optimize-autoloader
 
 EXPOSE 8000
 
-CMD php bin/console doctrine:migrations:migrate --no-interaction && php -S 0.0.0.0:8000 -t public
+CMD php bin/console doctrine:database:create --env=test || true \
+    && php bin/console doctrine:migrations:migrate --env=test --no-interaction \
+    && php bin/console doctrine:migrations:migrate --no-interaction \
+    && php -S 0.0.0.0:8000 -t public
